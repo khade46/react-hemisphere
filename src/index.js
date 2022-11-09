@@ -1,17 +1,35 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import  ReactDOM  from 'react-dom';
+import HemisphereDisplay from './HemisphereDisplay';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+class App extends React.Component
+{
+    state = {latitude: null , longitude:null, errorMessage:''}
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+    componentDidMount () {
+        window.navigator.geolocation.getCurrentPosition(
+            (position) =>{
+                this.setState({latitude: position.coords.latitude})
+                this.setState({longitude: position.coords.longitude})
+            },
+            (error) => {
+                this.setState({errorMessage: error.message})
+            }
+        );
+    }
+    render(){
+        if(this.state.latitude && this.state.longitude && !this.state.errorMessage){
+            return <div><HemisphereDisplay latitude={this.state.latitude} longitude={this.state.longitude}/> </div>
+        }
+        if((!this.state.latitude || !this.state.longitude) && this.state.errorMessage){
+            return <div> {this.state.errorMessage} </div>
+        }
+        else{
+            return <div>Loading...</div>
+        }
+    }
+}
+ReactDOM.render(
+    <App/>,
+    document.querySelector('#root')
+)
